@@ -24,7 +24,7 @@
 /*
  * Look up the raw data of a tile in the given layer.
  */
-static inline char lookup_tile(ALLEGRO_MAP_LAYER *layer, int x, int y)
+static inline int lookup_tile(ALLEGRO_MAP_LAYER *layer, int x, int y)
 {
 	return layer->data[x+(y*layer->width)];
 }
@@ -32,17 +32,17 @@ static inline char lookup_tile(ALLEGRO_MAP_LAYER *layer, int x, int y)
 /*
  * Same as lookup_tile, but zeros out the special bits first.
  */
-char al_get_single_tile_id(ALLEGRO_MAP_LAYER *layer, int x, int y)
+int al_get_single_tile_id(ALLEGRO_MAP_LAYER *layer, int x, int y)
 {
 	if (layer->type != TILE_LAYER) {
 		return 0;
 	}
 
-	char id = lookup_tile(layer, x, y);
+	int id = lookup_tile(layer, x, y);
 	id &= ~(FLIPPED_HORIZONTALLY_FLAG
 			|FLIPPED_VERTICALLY_FLAG
 			|FLIPPED_DIAGONALLY_FLAG);
-
+			
 	return id;
 }
 
@@ -51,7 +51,8 @@ char al_get_single_tile_id(ALLEGRO_MAP_LAYER *layer, int x, int y)
  */
 ALLEGRO_MAP_TILE *al_get_single_tile(ALLEGRO_MAP *map, ALLEGRO_MAP_LAYER *layer, int x, int y)
 {
-	return al_get_tile_for_id(map, al_get_single_tile_id(layer, x, y));
+	ALLEGRO_MAP_TILE *tile = al_get_tile_for_id(map, al_get_single_tile_id(layer, x, y));
+	return tile;
 }
 
 /*
@@ -163,7 +164,7 @@ bool flipped_vertically(ALLEGRO_MAP_LAYER *layer, int x, int y)
 /*
  * Looks up tiles in a map by id.
  */
-ALLEGRO_MAP_TILE *al_get_tile_for_id(ALLEGRO_MAP *map, char id)
+ALLEGRO_MAP_TILE *al_get_tile_for_id(ALLEGRO_MAP *map, int id)
 {
 	if (id == 0) {
 		return NULL;

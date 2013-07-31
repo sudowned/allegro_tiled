@@ -41,11 +41,11 @@ static void _al_draw_orthogonal_tile_layer(ALLEGRO_MAP_LAYER *layer, ALLEGRO_MAP
 	for (my = ystart; my <= yend; my++) {
 		for (mx = xstart; mx <= xend; mx++) {
 			ALLEGRO_MAP_TILE *tile = al_get_single_tile(map, layer, mx, my);
-
+			
 			if (!tile) {
 				continue;
 			}
-
+			
 			float x = mx*(map->tile_width) - sx + dx;
 			float y = my*(map->tile_height) - sy + dy;
 

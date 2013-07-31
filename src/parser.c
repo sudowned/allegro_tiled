@@ -41,7 +41,7 @@ static void decode_layer_data(xmlNode *data_node, ALLEGRO_MAP_LAYER *layer)
 {
 	char *str = g_strstrip((char *)data_node->children->content);
 	int datalen = layer->width * layer->height;
-	layer->data = (char *)calloc(datalen, sizeof(char));
+	layer->data = (int *)calloc(datalen, sizeof(int));
 
 	char *encoding = get_xml_attribute(data_node, "encoding");
 	if (!encoding) {
@@ -55,7 +55,6 @@ static void decode_layer_data(xmlNode *data_node, ALLEGRO_MAP_LAYER *layer)
 			layer->data[i] = atoi(gid);
 			i++;
 		}
-
 		g_slist_free(tiles);
 	}
 	else if (!strcmp(encoding, "base64")) {
@@ -105,7 +104,6 @@ static void decode_layer_data(xmlNode *data_node, ALLEGRO_MAP_LAYER *layer)
 				tileid |= data[i+1] << 8;
 				tileid |= data[i+2] << 16;
 				tileid |= data[i+3] << 24;
-
 				layer->data[i/4] = tileid;
 			}
 			/*	printf("layer dimensions: %dx%d, data length = %d\n", 
@@ -152,7 +150,6 @@ static void cache_tile_list(ALLEGRO_MAP *map)
 {
 	map->tiles = g_hash_table_new(NULL, NULL);
 	GSList *tileset_item = map->tilesets;
-
 	while (tileset_item != NULL) {
 		ALLEGRO_MAP_TILESET *tileset = (ALLEGRO_MAP_TILESET*)tileset_item->data;
 		tileset_item = g_slist_next(tileset_item);
@@ -248,6 +245,7 @@ ALLEGRO_MAP *al_open_map(const char *dir, const char *filename)
 	map->tilesets = NULL;
 
 	GSList *tileset_item = tilesets;
+
 	while (tileset_item) {
 		xmlNode *tileset_node = (xmlNode*)tileset_item->data;
 		tileset_item = g_slist_next(tileset_item);
@@ -267,8 +265,8 @@ ALLEGRO_MAP *al_open_map(const char *dir, const char *filename)
 
 		// Get this tileset's tiles
 		GSList *tiles = get_children_for_name(tileset_node, "tile");
+		
 		tileset->tiles = NULL;
-
 		GSList *tile_item = tiles;
 		while (tile_item) {
 			xmlNode *tile_node = (xmlNode*)tile_item->data;
@@ -323,16 +321,15 @@ ALLEGRO_MAP *al_open_map(const char *dir, const char *filename)
 			layer->width = atoi(get_xml_attribute(layer_node, "width"));
 			layer->height = atoi(get_xml_attribute(layer_node, "height"));
 			decode_layer_data(get_first_child_for_name(layer_node, "data"), layer);
-
 			// Create any missing tile objects
 			for (i = 0; i<layer->height; i++) {
 				for (j = 0; j<layer->width; j++) {
-					char id = al_get_single_tile_id(layer, j, i);
-
+					
+					int id = al_get_single_tile_id(layer, j, i);
+					
 					if (id == 0) {
 						continue;
 					}
-
 					ALLEGRO_MAP_TILE *tile = al_get_tile_for_id(map, id);
 					if (!tile) {
 						// wasn't defined in the map file, presumably because it had no properties
@@ -341,7 +338,7 @@ ALLEGRO_MAP *al_open_map(const char *dir, const char *filename)
 						tile->properties = g_hash_table_new(NULL, NULL);
 						tile->tileset = NULL;
 						tile->bitmap = NULL;
-
+						
 						// locate its tilemap
 						GSList *tilesets = map->tilesets;
 						ALLEGRO_MAP_TILESET *tileset_ref;
@@ -406,7 +403,7 @@ ALLEGRO_MAP *al_open_map(const char *dir, const char *filename)
 				if (gid) {
 					object->gid = atoi(gid);
 				}
-
+				
 				char *object_visible = get_xml_attribute(object_node, "visible");
 				object->visible = (object_visible ? atoi(object_visible) : 1);
 

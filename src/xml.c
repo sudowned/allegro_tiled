@@ -108,3 +108,21 @@ char *get_xml_attribute(xmlNode *node, char *name)
 
 	return NULL;
 }
+
+/*
+ * Gets the value of an attribute from a node
+ * The returned value must be copied if it will remain a string
+ */
+int *get_xml_attribute_int(xmlNode *node, char *name)
+{
+	xmlAttr *attrs = node->properties;
+
+	while (attrs != NULL) {
+		if (!strcmp((const char*)attrs->name, name))
+			return (int *)attrs->children->content;
+
+		attrs = attrs->next;
+	}
+
+	return NULL;
+}
