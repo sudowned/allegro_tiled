@@ -160,6 +160,14 @@ bool flipped_vertically(ALLEGRO_MAP_LAYER *layer, int x, int y)
 {
 	return lookup_tile(layer, x, y) & FLIPPED_VERTICALLY_FLAG;
 }
+/*
+
+ * Returns true if the tile at the given location is flipped diagonally.
+ */
+bool flipped_diagonally(ALLEGRO_MAP_LAYER *layer, int x, int y)
+{
+	return lookup_tile(layer, x, y) & FLIPPED_DIAGONALLY_FLAG;
+}
 
 /*
  * Looks up tiles in a map by id.

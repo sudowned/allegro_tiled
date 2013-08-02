@@ -49,11 +49,18 @@ static void _al_draw_orthogonal_tile_layer(ALLEGRO_MAP_LAYER *layer, ALLEGRO_MAP
 			
 			float x = mx*(map->tile_width) - sx + dx;
 			float y = my*(map->tile_height) - sy + dy;
-
-			//if (flipped_horizontally(layer, mx, my)) flags |= ALLEGRO_FLIP_HORIZONTAL;
-			//if (flipped_vertically(layer, mx, my)) flags |= ALLEGRO_FLIP_VERTICAL;
-
-			al_draw_tinted_bitmap(tile->bitmap, color, x, y, flags);
+			
+			if (flipped_vertically(layer, mx, my)) flags ^= ALLEGRO_FLIP_VERTICAL;
+			if (flipped_horizontally(layer, mx, my)) flags ^= ALLEGRO_FLIP_HORIZONTAL;
+			
+			if (flipped_diagonally(layer, mx, my)) {
+				int tile_center_h = map->tile_width		/ 2;
+				int tile_center_w = map->tile_height	/ 2;
+				flags ^= ALLEGRO_FLIP_VERTICAL;
+				al_draw_tinted_rotated_bitmap(tile->bitmap, color, tile_center_w, tile_center_h, x + tile_center_h, y + tile_center_w, -ALLEGRO_PI/2, flags);
+			} else {
+				al_draw_tinted_bitmap(tile->bitmap, color, x, y, flags);
+			}
 		}
 	}
 	
